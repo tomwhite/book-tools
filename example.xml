@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE chapter PUBLIC "-//OASIS//DTD DocBook XML V4.4//EN"
+                         "http://www.docbook.org/xml/4.4/docbookx.dtd" [
+                         <!ENTITY % xinclude SYSTEM "xinclude.mod">
+                         %xinclude;
+                         <!ENTITY % local.common.attrib "xml:base CDATA #IMPLIED" >
+                         ]>
+<chapter id="example">
+  <title>Example</title>
+  <para>Lorem ipsum dolor sit amet, consectetur adipisicing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.</para>
+
+  <sect1>
+    <title>Section 1</title>
+    <para>Lorem ipsum dolor sit amet, consectetur adipisicing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.</para>
+    <xi:include href="listings/Example.xml" xmlns:xi="http://www.w3.org/2001/XInclude"/>
+    <para>Lorem ipsum dolor sit amet, consectetur adipisicing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.</para>
+    
+    
+    <xi:include href="listings/sh/uname_command.xml" xmlns:xi="http://www.w3.org/2001/XInclude"/>
+    <para>Lorem ipsum dolor sit amet, consectetur adipisicing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.</para>
+    <xi:include href="listings/sh/input/date_command.xml" xmlns:xi="http://www.w3.org/2001/XInclude"/>
+    
+  </sect1>
+  
+</chapter>

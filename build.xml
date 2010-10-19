@@ -1,0 +1,18 @@
+<?xml version="1.0"?>
+
+<project name="book" basedir="." default="listings">
+
+  <property name="build.dir" value="build"/>
+  <property name="src.dir" value="src/main"/>
+  <property name="phragmite.pl" value="bin/phragmite_db.pl"/>
+  <property name="listings.dir" value="listings"/>
+
+  <target name="listings">
+    <exec dir="${basedir}" executable="perl">
+      <arg value="${phragmite.pl}"/>
+      <arg value="${listings.dir}"/>
+      <arg value="${src.dir}/java/org/example/*.java"/>
+    </exec>
+  </target>
+  
+</project>

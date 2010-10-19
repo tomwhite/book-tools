@@ -1,0 +1,11 @@
+Some simple tools for including computer source code in DocBook.
+
+These tools were used for writing "Hadoop: The Definitive Guide"
+(http://github.com/tomwhite/hadoop-book).
+
+Try running the following to get started:
+
+% ant
+% bin/sheller.sh
+
+Then look at example.xml in a DocBook editor, such as oXygen.
