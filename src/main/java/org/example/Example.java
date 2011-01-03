@@ -4,6 +4,7 @@ package org.example;
 //vv Example
 public class Example {
   public static void main(String[] args) {
+    System.out.println(""); //co emptyline Prints an empty line.
     /*[*/System.out.println("Hello World!");
     System.exit(0);/*]*/
   }
