@@ -212,7 +212,7 @@ for my $file (map { s{\\}{/}g; glob $_ } @ARGV) {
             # 
             # This is a phragmite markup line: parse operation, fragment name, and remainder
             #
-            my $op = $1;                             # operation (vv, ^^, xx, cc, !!, ??, ==, --, co)
+            my $op = $1;                             # operation (vv, ^^, xx, cc, !!, ??, ==, --)
             my $key = $2;                            # fragment name
             my $rest = $3;                           # optional remainder of line
             $rest =~ s/[\n\r]+$//;                   # strip trailing \n and \r
@@ -351,7 +351,6 @@ for my $key (sort keys %fragments) {
         print OUT "  <programlisting";
         print OUT " $options" if $options;
         print OUT ">$fragment</programlisting>\n"; 
-        print OUT "</example>\n";
     } elsif ($bad) {
         print OUT "<example id=\"$key\">\n";  
         print OUT $header{$key};
@@ -359,7 +358,6 @@ for my $key (sort keys %fragments) {
         print OUT "  <programlisting";
         print OUT " $options" if $options;
         print OUT ">$fragment</programlisting>\n"; 
-        print OUT "</example>\n";
     } elsif ($nofloat) {
         print OUT "<programlisting";
         print OUT " $options" if $options;
@@ -371,11 +369,10 @@ for my $key (sort keys %fragments) {
         print OUT "  <programlisting";
         print OUT " $options" if $options;
         print OUT ">$fragment</programlisting>\n"; 
-        print OUT "</example>\n";
     }
 
     # check for callouts
-    my @coKeys = keys %{$callouts{$key}};
+    my @coKeys = sort keys %{$callouts{$key}};
     if (@coKeys) {
         print OUT "<calloutlist>\n";
         for my $coKey (@coKeys) {
@@ -385,7 +382,8 @@ for my $key (sort keys %fragments) {
         }
         print OUT "</calloutlist>\n";
     }
-    
+
+    print OUT "</example>\n" unless $nofloat;
     close OUT;
 }
 
@@ -423,6 +421,7 @@ sub lengthCheck {
     $frag =~ s!(&lt;|&gt;|&amp;|&quot;|&apos;)!1!g;
     $frag =~ s!<emphasis role="bold">!!g;
     $frag =~ s!</emphasis>!!g;
+    $frag =~ s!<co .*/>!!g;
     my $maxline = MAXLINE + 1;
     my @longLines = $frag =~ m/.{$maxline}/g;
     if (@longLines) {
