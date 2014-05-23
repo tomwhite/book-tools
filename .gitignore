@@ -1,4 +1,16 @@
+target
+work
+
+# IntelliJ project files 
+*.iml
+*.iws
+*.ipr
+.idea
+
+# eclipse project file
+.settings
 .classpath
 .project
-build
-listings
+
+# other files
+*.swp

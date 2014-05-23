@@ -52,6 +52,14 @@
 # named "FragmentName" with contents given by optionalText. 
 # If optionalText is empty, an empty line is added.
 #
+# A specific comment can be used to add callouts to the resulting DocBook
+# file. Use
+#
+#   // co CalloutID calloutText
+#
+# to set a callout and use calloutText as the information used to fill the
+# callout paragraph.
+#
 # A line marked with
 #
 #   // hh FragmentName text
@@ -132,9 +140,9 @@ $outdir =~ s{\\}{/}g; # normalize to forward slashes
 #
 # Fragments keyed by name, the values are the contents of each fragment.
 # Hashes to hold captions, extra options, which examples are good, bad,
-# or not to be floated.
+# or not to be floated. Callouts are hashes of hashes.
 #
-my (%fragments, %fileNames, %captions, %options, %good, %bad, %nofloat);
+my (%fragments, %fileNames, %captions, %options, %good, %bad, %nofloat, %callouts);
 
 #
 # Process each file, expanding wildcards and normalizing to forward slashes
@@ -181,18 +189,37 @@ for my $file (map { s{\\}{/}g; glob $_ } @ARGV) {
         $line =~ s!/\*public\*/!public!;              # /*public*/
         $line =~ s!/\*private\*/!private!;            # /*private*/
         
+        if ($line =~ m{// \s* co \s+ (\S*) \s+ (.*) $ }x) {
+            #
+            # Handle callouts
+            #
+            my $coId = $1;
+            my $coText = $2;
+            warn "line $lineNum: missing text for $coId\n" unless $coText;
+            #
+            # Add callout to all active fragments
+            #
+            for my $key (keys %active) {
+                $callouts{$key}{$coId} = $coText;
+            }
+            #
+            # Replace comment with DocBook "co" element
+            #
+            $line =~ s{//.*}{<co id="$coId-co" linkends="$coId"/>};
+        }
+
         if ($line =~ m{^ \s* // \s* (vv+|\^\^+|xx+|cc+(?:\[.*\])?|hh+|!!+|\?\?+(?:\[.*\])?|==+|--+) \s+ (\S*) \s? (.*) $ }x) {
             # 
             # This is a phragmite markup line: parse operation, fragment name, and remainder
             #
-            my $op = $1;                             # operation (vv, ^^, xx, cc, !!, ??, ==, --
+            my $op = $1;                             # operation (vv, ^^, xx, cc, !!, ??, ==, --)
             my $key = $2;                            # fragment name
             my $rest = $3;                           # optional remainder of line
             $rest =~ s/[\n\r]+$//;                   # strip trailing \n and \r
             $fileNames{$key} = $fileName;            # keep track of file contributing to this fragment
                                                      # Only remembers last file seen.
             
-            if ($op =~ /c/) {    # caption
+            if ($op =~ /cc/) {   # caption
                 warn "line $lineNum: missing caption for $key\n" unless $rest;
                 $captions{$key} = $rest;
                 if ($op =~ /cc\[(.*)\]/) {
@@ -324,7 +351,6 @@ for my $key (sort keys %fragments) {
         print OUT "  <programlisting";
         print OUT " $options" if $options;
         print OUT ">$fragment</programlisting>\n"; 
-        print OUT "</example>\n";
     } elsif ($bad) {
         print OUT "<example id=\"$key\">\n";  
         print OUT $header{$key};
@@ -332,7 +358,6 @@ for my $key (sort keys %fragments) {
         print OUT "  <programlisting";
         print OUT " $options" if $options;
         print OUT ">$fragment</programlisting>\n"; 
-        print OUT "</example>\n";
     } elsif ($nofloat) {
         print OUT "<programlisting";
         print OUT " $options" if $options;
@@ -344,9 +369,21 @@ for my $key (sort keys %fragments) {
         print OUT "  <programlisting";
         print OUT " $options" if $options;
         print OUT ">$fragment</programlisting>\n"; 
-        print OUT "</example>\n";
     }
-    
+
+    # check for callouts
+    my @coKeys = sort keys %{$callouts{$key}};
+    if (@coKeys) {
+        print OUT "<calloutlist>\n";
+        for my $coKey (@coKeys) {
+            print OUT "  <callout arearefs=\"$coKey-co\" id=\"$coKey\">\n";
+            print OUT "    <para>$callouts{$key}{$coKey}</para>\n";
+            print OUT "  </callout>\n";
+        }
+        print OUT "</calloutlist>\n";
+    }
+
+    print OUT "</example>\n" unless $nofloat;
     close OUT;
 }
 
@@ -384,6 +421,7 @@ sub lengthCheck {
     $frag =~ s!(&lt;|&gt;|&amp;|&quot;|&apos;)!1!g;
     $frag =~ s!<emphasis role="bold">!!g;
     $frag =~ s!</emphasis>!!g;
+    $frag =~ s!<co .*/>!!g;
     my $maxline = MAXLINE + 1;
     my @longLines = $frag =~ m/.{$maxline}/g;
     if (@longLines) {
